@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 const Header = () => {
   const [activeSection, setActiveSection] = useState("home");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [isHomeVisible, setIsHomeVisible] = useState(true);
 
   const navItems = [
     { id: "home", label: "Home" },
@@ -15,19 +15,35 @@ const Header = () => {
     { id: "contact", label: "Contact" },
   ];
 
-  /* Scroll Shadow Effect */
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
-    };
+  /* ======================
+     DETECT HOME VISIBILITY
+  ====================== */
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+  useEffect(() => {
+    const homeSection = document.getElementById("home");
+
+    if (!homeSection) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsHomeVisible(entry.isIntersecting);
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(homeSection);
+
+    return () => observer.disconnect();
   }, []);
 
-  /* Scroll Spy */
+  /* ======================
+     SCROLL SPY
+  ====================== */
+
   useEffect(() => {
-    const sections = navItems.map((item) => item.id);
+    const sections = navItems.map((item) =>
+      document.getElementById(item.id)
+    );
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -37,46 +53,63 @@ const Header = () => {
           }
         });
       },
-      { threshold: 0.4 }
+      {
+        rootMargin: "-40% 0px -50% 0px",
+        threshold: 0,
+      }
     );
 
-    sections.forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) observer.observe(element);
+    sections.forEach((section) => {
+      if (section) observer.observe(section);
     });
 
     return () => observer.disconnect();
   }, []);
 
+  /* ======================
+     SMOOTH SCROLL
+  ====================== */
+
   const scrollToSection = (id) => {
     const section = document.getElementById(id);
+
     if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
+      const headerOffset = 80;
+
+      const position =
+        section.getBoundingClientRect().top +
+        window.pageYOffset -
+        headerOffset;
+
+      window.scrollTo({
+        top: position,
+        behavior: "smooth",
+      });
+
       setMobileOpen(false);
     }
   };
 
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-300
-      ${
-        scrolled
-          ? "bg-black/90 backdrop-blur-lg shadow-xl border-b border-white/10"
-          : "bg-black/60 backdrop-blur-md"
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        isHomeVisible
+          ? "bg-transparent"
+          : "bg-[#111]/95 backdrop-blur-xl shadow-lg"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center text-white">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
         {/* Logo */}
         <h1
-          className="text-2xl font-bold cursor-pointer hover:text-yellow-400 transition"
+          className="text-2xl font-bold text-white cursor-pointer hover:text-yellow-400 transition"
           onClick={() => scrollToSection("home")}
         >
           EsportM
         </h1>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex gap-8 font-medium">
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex gap-8 font-medium text-white">
           {navItems.map(({ id, label }) => (
             <button
               key={id}
@@ -93,20 +126,20 @@ const Header = () => {
         </nav>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        <div className="md:hidden text-white">
           <button onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Menu */}
       <div
-        className={`md:hidden bg-black/95 backdrop-blur-lg overflow-hidden transition-all duration-300 ${
+        className={`md:hidden bg-[#7b5aa6] overflow-hidden transition-all duration-300 ${
           mobileOpen ? "max-h-96 py-6" : "max-h-0"
         }`}
       >
-        <div className="flex flex-col items-center gap-6 text-white font-medium">
+        <div className="flex flex-col items-center gap-6 font-medium text-white">
           {navItems.map(({ id, label }) => (
             <button
               key={id}
