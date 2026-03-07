@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 const Header = () => {
   const [activeSection, setActiveSection] = useState("home");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const navItems = [
     { id: "home", label: "Home" },
@@ -14,7 +15,17 @@ const Header = () => {
     { id: "contact", label: "Contact" },
   ];
 
-  // Scroll Spy
+  /* Scroll Shadow Effect */
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 40);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  /* Scroll Spy */
   useEffect(() => {
     const sections = navItems.map((item) => item.id);
 
@@ -26,7 +37,7 @@ const Header = () => {
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.4 }
     );
 
     sections.forEach((id) => {
@@ -46,9 +57,15 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 w-full bg-black/20 backdrop-blur-xl text-white z-50 ">
-
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <header
+      className={`fixed top-0 w-full z-50 transition-all duration-300
+      ${
+        scrolled
+          ? "bg-black/90 backdrop-blur-lg shadow-xl border-b border-white/10"
+          : "bg-black/60 backdrop-blur-md"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center text-white">
 
         {/* Logo */}
         <h1
@@ -58,7 +75,7 @@ const Header = () => {
           EsportM
         </h1>
 
-        {/* Desktop Nav */}
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-8 font-medium">
           {navItems.map(({ id, label }) => (
             <button
@@ -77,27 +94,24 @@ const Header = () => {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="cursor-pointer"
-          >
+          <button onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Navigation */}
       <div
-        className={`md:hidden bg-[#7b5aa6] overflow-hidden transition-all duration-300 ${
-          mobileOpen ? "max-h-96 py-4" : "max-h-0"
+        className={`md:hidden bg-black/95 backdrop-blur-lg overflow-hidden transition-all duration-300 ${
+          mobileOpen ? "max-h-96 py-6" : "max-h-0"
         }`}
       >
-        <div className="flex flex-col items-center gap-6 font-medium">
+        <div className="flex flex-col items-center gap-6 text-white font-medium">
           {navItems.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => scrollToSection(id)}
-              className={`cursor-pointer transition ${
+              className={`transition ${
                 activeSection === id
                   ? "text-yellow-400"
                   : "hover:text-yellow-400"
@@ -108,7 +122,6 @@ const Header = () => {
           ))}
         </div>
       </div>
-
     </header>
   );
 };

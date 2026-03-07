@@ -167,7 +167,7 @@ export default function Contact() {
 
       } else {
         console.error("Apps Script raw response:", text);
-        showToast("error", result.error || "Submission failed. Check Apps Script deployment access (Anyone).");
+        showToast("error", result.error || "Submission failed.");
       }
     } catch (err) {
       console.error("FETCH ERROR:", err);
