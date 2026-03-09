@@ -15,30 +15,23 @@ const Header = () => {
     { id: "contact", label: "Contact" },
   ];
 
-  /* ======================
-     DETECT HOME VISIBILITY
-  ====================== */
+  /* Detect hero visibility */
 
   useEffect(() => {
-    const homeSection = document.getElementById("home");
-
-    if (!homeSection) return;
+    const home = document.getElementById("home");
+    if (!home) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsHomeVisible(entry.isIntersecting);
-      },
+      ([entry]) => setIsHomeVisible(entry.isIntersecting),
       { threshold: 0.3 }
     );
 
-    observer.observe(homeSection);
+    observer.observe(home);
 
     return () => observer.disconnect();
   }, []);
 
-  /* ======================
-     SCROLL SPY
-  ====================== */
+  /* Scroll spy */
 
   useEffect(() => {
     const sections = navItems.map((item) =>
@@ -55,31 +48,26 @@ const Header = () => {
       },
       {
         rootMargin: "-40% 0px -50% 0px",
-        threshold: 0,
       }
     );
 
-    sections.forEach((section) => {
-      if (section) observer.observe(section);
+    sections.forEach((sec) => {
+      if (sec) observer.observe(sec);
     });
 
     return () => observer.disconnect();
   }, []);
 
-  /* ======================
-     SMOOTH SCROLL
-  ====================== */
-
   const scrollToSection = (id) => {
     const section = document.getElementById(id);
 
     if (section) {
-      const headerOffset = 80;
+      const offset = 80;
 
       const position =
         section.getBoundingClientRect().top +
         window.pageYOffset -
-        headerOffset;
+        offset;
 
       window.scrollTo({
         top: position,
@@ -92,62 +80,65 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isHomeVisible
-          ? "bg-transparent"
-          : "bg-[#111]/95 backdrop-blur-xl shadow-lg"
+      className={`fixed top-0 w-full z-50 transition-all duration-300 pointer-events-none ${
+        isHomeVisible ? "py-4" : "py-2"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between relative pointer-events-auto">
 
         {/* Logo */}
         <h1
-          className="text-2xl font-bold text-white cursor-pointer hover:text-yellow-400 transition"
           onClick={() => scrollToSection("home")}
+          className="text-2xl font-bold text-[#7b5aa6] cursor-pointer"
         >
           EsportM
         </h1>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex gap-8 font-medium text-white">
+        {/* CENTER NAV */}
+        <nav
+          className="hidden md:flex items-center gap-2 px-3 py-2 absolute left-1/2 -translate-x-1/2 bg-[#7b5aa6]/30 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] rounded-full transition-all duration-300"
+        >
+
           {navItems.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => scrollToSection(id)}
-              className={`cursor-pointer transition-all duration-300 pb-1 border-b-2 ${
+              className={`px-5 py-2 rounded-full text-sm font-medium transition ${
                 activeSection === id
-                  ? "border-yellow-400 text-yellow-400"
-                  : "border-transparent hover:text-yellow-400"
+                  ? "bg-black text-white"
+                  : "text-black hover:bg-white/30"
               }`}
             >
               {label}
             </button>
           ))}
+
         </nav>
 
-        {/* Mobile Menu Button */}
-        <div className="md:hidden text-white">
+        {/* Mobile menu button */}
+        <div className="md:hidden">
           <button onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* MOBILE MENU */}
+
       <div
-        className={`md:hidden bg-[#7b5aa6] overflow-hidden transition-all duration-300 ${
+        className={`md:hidden bg-white transition-all duration-300 overflow-hidden ${
           mobileOpen ? "max-h-96 py-6" : "max-h-0"
         }`}
       >
-        <div className="flex flex-col items-center gap-6 font-medium text-white">
+        <div className="flex flex-col items-center gap-5">
           {navItems.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => scrollToSection(id)}
-              className={`transition ${
+              className={`px-6 py-2 rounded-full ${
                 activeSection === id
-                  ? "text-yellow-400"
-                  : "hover:text-yellow-400"
+                  ? "bg-[#7b5aa6] text-white"
+                  : "text-black"
               }`}
             >
               {label}
