@@ -1,5 +1,46 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import player from "../assets/player.png";
+
+function useInView(threshold = 0.15) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { setVisible(entry.isIntersecting); },
+      { threshold }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [threshold]);
+  return [ref, visible];
+}
+
+function FadeIn({ children, delay = 0, className = "", direction = "up" }) {
+  const [ref, visible] = useInView();
+  
+  const getTransform = () => {
+    if (!visible) {
+      if (direction === "left") return "translateX(-40px)";
+      if (direction === "right") return "translateX(40px)";
+      return "translateY(28px)";
+    }
+    return "translate(0, 0)";
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: getTransform(),
+        transition: `opacity 0.8s ${delay}ms ease-out, transform 0.8s ${delay}ms cubic-bezier(0.16, 1, 0.3, 1)`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 const InteractiveGrid = () => {
   const canvasRef = useRef(null);
@@ -151,8 +192,7 @@ const Hero = () => {
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 w-full grid md:grid-cols-2 gap-12 items-center">
 
         {/* LEFT CONTENT */}
-        <div className="z-10 text-center md:text-left">
-
+        <FadeIn direction="left" delay={200} className="z-20 text-center md:text-left">
           {/* Logo */}
           <div className="flex items-center justify-center md:justify-start gap-3 mb-8">
 
@@ -186,24 +226,21 @@ const Hero = () => {
               Get in Touch
             </button>
           </div>
-
-        </div>
+        </FadeIn>
 
         {/* PLAYER IMAGE */}
-        <div className="relative flex justify-center md:justify-end">
-
+        <FadeIn direction="right" delay={400} className="relative flex justify-center md:justify-end z-20">
           <img
             src={player}
             alt="player"
-            className="w-[260px] sm:w-[360px] md:w-[450px] lg:w-[520px] xl:w-[600px] object-contain z-10"
+            className="w-[220px] sm:w-[300px] md:w-[380px] lg:w-[450px] xl:w-[520px] object-contain z-10"
           />
 
           {/* Player Number */}
           <div className="absolute right-4 md:right-10 top-4 md:top-10 text-[60px] sm:text-[80px] md:text-[110px] text-gray-300 font-bold">
             09
           </div>
-
-        </div>
+        </FadeIn>
 
       </div>
     </section>

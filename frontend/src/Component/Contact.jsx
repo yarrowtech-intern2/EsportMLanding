@@ -1,5 +1,46 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import { MapPin, Phone, Mail, X, CheckCircle2, AlertCircle } from "lucide-react";
+
+function useInView(threshold = 0.15) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { setVisible(entry.isIntersecting); },
+      { threshold }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [threshold]);
+  return [ref, visible];
+}
+
+function FadeIn({ children, delay = 0, className = "", direction = "up" }) {
+  const [ref, visible] = useInView();
+  
+  const getTransform = () => {
+    if (!visible) {
+      if (direction === "left") return "translateX(-40px)";
+      if (direction === "right") return "translateX(40px)";
+      return "translateY(28px)";
+    }
+    return "translate(0, 0)";
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: getTransform(),
+        transition: `opacity 0.8s ${delay}ms ease-out, transform 0.8s ${delay}ms cubic-bezier(0.16, 1, 0.3, 1)`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 const inputClass =
   "w-full px-4 py-3 bg-white border border-purple-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#7b5aa6] focus:ring-2 focus:ring-[#7b5aa6]/20 transition";
@@ -194,225 +235,229 @@ export default function Contact() {
         }}
       />
 
-      <div className="relative max-w-6xl mx-auto px-6 md:px-12 grid md:grid-cols-2 gap-16 items-start">
+      <div className="relative max-w-6xl mx-auto px-6 md:px-12 grid md:grid-cols-2 gap-16 items-start z-20">
         {/* LEFT SIDE INFO */}
-        <div>
-          <p className="uppercase tracking-[0.4em] text-xs font-semibold text-[#7b5aa6] mb-5">
-            Contact
-          </p>
+        <FadeIn direction="left">
+          <div>
+            <p className="uppercase tracking-[0.4em] text-xs font-semibold text-[#7b5aa6] mb-5">
+              Contact
+            </p>
 
-          <h2 className="text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
-            Connect with <span className="text-[#7b5aa6]">EsportM</span>
-          </h2>
+            <h2 className="text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
+              Connect with <span className="text-[#7b5aa6]">EsportM</span>
+            </h2>
 
-          <p className="text-gray-600 mb-10 leading-relaxed max-w-md">
-            Register as a player or club and become part of the structured EsportM ecosystem.
-          </p>
+            <p className="text-gray-600 mb-10 leading-relaxed max-w-md">
+              Register as a player or club and become part of the structured EsportM ecosystem.
+            </p>
 
-          <div className="space-y-7">
-            {/* Address */}
-            <div className="flex gap-4">
-              <div className="w-11 h-11 rounded-lg bg-[#7b5aa6]/10 flex items-center justify-center text-[#7b5aa6]">
-                <MapPin size={18} />
+            <div className="space-y-7">
+              {/* Address */}
+              <div className="flex gap-4">
+                <div className="w-11 h-11 rounded-lg bg-[#7b5aa6]/10 flex items-center justify-center text-[#7b5aa6]">
+                  <MapPin size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Office</p>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm text-gray-600 hover:text-[#7b5aa6] transition"
+                  >
+                    {address}
+                  </a>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">Office</p>
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm text-gray-600 hover:text-[#7b5aa6] transition"
-                >
-                  {address}
-                </a>
-              </div>
-            </div>
 
-            {/* Phone */}
-            <div className="flex gap-4">
-              <div className="w-11 h-11 rounded-lg bg-[#7b5aa6]/10 flex items-center justify-center text-[#7b5aa6]">
-                <Phone size={18} />
+              {/* Phone */}
+              <div className="flex gap-4">
+                <div className="w-11 h-11 rounded-lg bg-[#7b5aa6]/10 flex items-center justify-center text-[#7b5aa6]">
+                  <Phone size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Phone</p>
+                  <a
+                    href={`tel:${phone.replace(/\s+/g, "")}`}
+                    className="text-sm text-gray-600 hover:text-[#7b5aa6] transition"
+                  >
+                    {phone}
+                  </a>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">Phone</p>
-                <a
-                  href={`tel:${phone.replace(/\s+/g, "")}`}
-                  className="text-sm text-gray-600 hover:text-[#7b5aa6] transition"
-                >
-                  {phone}
-                </a>
-              </div>
-            </div>
 
-            {/* Email */}
-            <div className="flex gap-4">
-              <div className="w-11 h-11 rounded-lg bg-[#7b5aa6]/10 flex items-center justify-center text-[#7b5aa6]">
-                <Mail size={18} />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">Email</p>
-                <a
-                  href="mailto:support@esportm.com"
-                  className="text-sm text-gray-600 hover:text-[#7b5aa6] transition"
-                >
-                  support@esportm.com
-                </a>
+              {/* Email */}
+              <div className="flex gap-4">
+                <div className="w-11 h-11 rounded-lg bg-[#7b5aa6]/10 flex items-center justify-center text-[#7b5aa6]">
+                  <Mail size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Email</p>
+                  <a
+                    href="mailto:support@esportm.com"
+                    className="text-sm text-gray-600 hover:text-[#7b5aa6] transition"
+                  >
+                    support@esportm.com
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </FadeIn>
 
         {/* RIGHT SIDE FORM */}
-        <div className="bg-white rounded-2xl shadow-xl border border-purple-200 p-8 relative">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#7b5aa6] to-purple-300 rounded-t-2xl" />
+        <FadeIn direction="right">
+          <div className="bg-white rounded-2xl shadow-xl border border-purple-200 p-8 relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#7b5aa6] to-purple-300 rounded-t-2xl" />
 
-          {/* Role Switch */}
-          <div className="flex justify-center mb-8">
-            <div className="flex bg-[#f4effb] rounded-lg p-1">
-              {["player", "club"].map((item) => (
+            {/* Role Switch */}
+            <div className="flex justify-center mb-8">
+              <div className="flex bg-[#f4effb] rounded-lg p-1">
+                {["player", "club"].map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => setRole(item)}
+                    className={`px-6 py-2 rounded-md text-sm font-semibold transition ${
+                      role === item ? "bg-[#7b5aa6] text-white" : "text-gray-600 hover:text-[#7b5aa6]"
+                    }`}
+                  >
+                    {item === "player" ? "Player" : "Club"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {role === "player" ? (
+                <>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold mb-1 text-gray-800">
+                      Player Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      value={active.name}
+                      onChange={(e) => setActiveField("name", e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold mb-1 text-gray-800">
+                      Player Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={active.email}
+                      onChange={(e) => setActiveField("email", e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold mb-1 text-gray-800">
+                      Player Mobile <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={active.mobile}
+                      onChange={(e) => setActiveField("mobile", e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold mb-1 text-gray-800">
+                      Description 
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={active.description}
+                      onChange={(e) => setActiveField("description", e.target.value)}
+                      className={inputClass + " resize-none"}
+                      placeholder="Brief description..."
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold mb-1 text-gray-800">
+                      Club Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      value={active.clubName}
+                      onChange={(e) => setActiveField("clubName", e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold mb-1 text-gray-800">
+                      Club Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={active.email}
+                      onChange={(e) => setActiveField("email", e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold mb-1 text-gray-800">
+                      Club Mobile <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={active.mobile}
+                      onChange={(e) => setActiveField("mobile", e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold mb-1 text-gray-800">
+                      Club Location <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      value={active.location}
+                      onChange={(e) => setActiveField("location", e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold mb-1 text-gray-800">
+                      Description 
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={active.description}
+                      onChange={(e) => setActiveField("description", e.target.value)}
+                      className={inputClass + " resize-none"}
+                      placeholder="Brief description..."
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="md:col-span-2 mt-2">
                 <button
-                  key={item}
-                  type="button"
-                  onClick={() => setRole(item)}
-                  className={`px-6 py-2 rounded-md text-sm font-semibold transition ${
-                    role === item ? "bg-[#7b5aa6] text-white" : "text-gray-600 hover:text-[#7b5aa6]"
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full py-3 rounded-lg font-semibold text-sm uppercase tracking-wider transition ${
+                    loading
+                      ? "bg-[#7b5aa6] text-white opacity-70 cursor-not-allowed"
+                      : "bg-[#7b5aa6] text-white hover:bg-[#6a4c92]"
                   }`}
                 >
-                  {item === "player" ? "Player" : "Club"}
+                  {loading ? "Submitting..." : "Submit "}
                 </button>
-              ))}
-            </div>
+              </div>
+            </form>
           </div>
-
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {role === "player" ? (
-              <>
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold mb-1 text-gray-800">
-                    Player Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    value={active.name}
-                    onChange={(e) => setActiveField("name", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold mb-1 text-gray-800">
-                    Player Email <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={active.email}
-                    onChange={(e) => setActiveField("email", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold mb-1 text-gray-800">
-                    Player Mobile <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    value={active.mobile}
-                    onChange={(e) => setActiveField("mobile", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold mb-1 text-gray-800">
-                    Description 
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={active.description}
-                    onChange={(e) => setActiveField("description", e.target.value)}
-                    className={inputClass + " resize-none"}
-                    placeholder="Brief description..."
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold mb-1 text-gray-800">
-                    Club Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    value={active.clubName}
-                    onChange={(e) => setActiveField("clubName", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold mb-1 text-gray-800">
-                    Club Email <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={active.email}
-                    onChange={(e) => setActiveField("email", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold mb-1 text-gray-800">
-                    Club Mobile <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    value={active.mobile}
-                    onChange={(e) => setActiveField("mobile", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold mb-1 text-gray-800">
-                    Club Location <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    value={active.location}
-                    onChange={(e) => setActiveField("location", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold mb-1 text-gray-800">
-                    Description 
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={active.description}
-                    onChange={(e) => setActiveField("description", e.target.value)}
-                    className={inputClass + " resize-none"}
-                    placeholder="Brief description..."
-                  />
-                </div>
-              </>
-            )}
-
-            <div className="md:col-span-2 mt-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full py-3 rounded-lg font-semibold text-sm uppercase tracking-wider transition ${
-                  loading
-                    ? "bg-[#7b5aa6] text-white opacity-70 cursor-not-allowed"
-                    : "bg-[#7b5aa6] text-white hover:bg-[#6a4c92]"
-                }`}
-              >
-                {loading ? "Submitting..." : "Submit "}
-              </button>
-            </div>
-          </form>
-        </div>
+        </FadeIn>
       </div>
     </section>
   );

@@ -7,6 +7,7 @@ import Timeline from "./Component/Timeline";
 import Contact from "./Component/Contact";
 import Footer from "./Component/Footer";
 import FloatingContact from "./Component/Floating";
+import FloatingFootball from "./Component/FloatingFootball";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Timeline />
       <Contact />
       <FloatingContact />
+      <FloatingFootball />
       <Footer />
     </>
   );

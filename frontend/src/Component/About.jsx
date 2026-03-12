@@ -6,30 +6,120 @@ function useInView(threshold = 0.15) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) { setVisible(true); observer.disconnect(); }
-      },
+      ([entry]) => { setVisible(entry.isIntersecting); },
       { threshold }
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
-  }, []);
+  }, [threshold]);
   return [ref, visible];
 }
 
-function FadeIn({ children, delay = 0, className = "" }) {
+function FadeIn({ children, delay = 0, className = "", direction = "up" }) {
   const [ref, visible] = useInView();
+  
+  const getTransform = () => {
+    if (!visible) {
+      if (direction === "left") return "translateX(-40px)";
+      if (direction === "right") return "translateX(40px)";
+      return "translateY(28px)";
+    }
+    return "translate(0, 0)";
+  };
+
   return (
     <div
       ref={ref}
       className={className}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0px)" : "translateY(28px)",
-        transition: `opacity 0.75s ${delay}ms ease, transform 0.75s ${delay}ms ease`,
+        transform: getTransform(),
+        transition: `opacity 0.8s ${delay}ms ease-out, transform 0.8s ${delay}ms cubic-bezier(0.16, 1, 0.3, 1)`,
       }}
     >
       {children}
+    </div>
+  );
+}
+
+function FlipCard({ title, icon: Icon, shortDesc, fullContent, isMission = true, isFeature = false }) {
+  const [flipped, setFlipped] = useState(false);
+  const IconComponent = Icon ? Icon : null;
+
+  return (
+    <div className={`perspective-1000 w-full transition-all duration-500 ease-in-out ${
+      isFeature 
+        ? (flipped ? 'h-[320px]' : 'h-[230px]') 
+        : (flipped ? 'min-h-[450px]' : 'min-h-[320px]')
+    }`}>
+      <div 
+        className={`relative w-full h-full transition-all duration-700 preserve-3d ${flipped ? 'rotate-y-180' : ''}`}
+        style={{ transformStyle: 'preserve-3d' }}
+      >
+        {/* Front Face */}
+        <div className={`group w-full h-full backface-hidden rounded-3xl ${isFeature ? 'p-8' : 'px-10 py-10'} border border-purple-100 shadow-sm relative flex flex-col ${!isMission && !isFeature ? 'bg-[#7b5aa6] text-white' : 'bg-white'} hover:shadow-lg transition-shadow duration-300`} style={{ backfaceVisibility: 'hidden' }}>
+          {isMission && !isFeature && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#7b5aa6] via-purple-300 to-transparent" />}
+          {!isMission && !isFeature && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent" />}
+          {isFeature && (
+            <div className="absolute top-0 left-0 h-1 w-0 group-hover:w-full bg-gradient-to-r from-[#7b5aa6] to-purple-300 transition-all duration-500" />
+          )}
+
+          {IconComponent && (
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${isFeature ? 'bg-[#ede7f5]' : 'bg-white/10'}`}>
+              <IconComponent size={24} className={isFeature ? 'text-[#7b5aa6]' : 'text-white'} strokeWidth={1.8} />
+            </div>
+          )}
+
+          {!isFeature && (
+            <p className={`uppercase tracking-[0.3em] text-[11px] font-bold mb-4 ${isMission ? 'text-[#7b5aa6]' : 'text-purple-200'}`}>
+              {isMission ? 'Our Mission' : 'Our Vision'}
+            </p>
+          )}
+
+          <h3 className={`font-extrabold leading-tight mb-3 ${isFeature ? 'text-lg text-gray-900 group-hover:text-[#7b5aa6]' : 'text-2xl md:text-3xl'} ${!isMission && !isFeature ? 'text-white' : ''}`}>
+            {title}
+          </h3>
+          <p className={`leading-relaxed ${isFeature ? 'text-sm text-gray-500' : 'text-base mb-6'} ${!isMission && !isFeature ? 'text-purple-100' : ''}`}>
+            {shortDesc}
+          </p>
+
+          <button 
+            onClick={(e) => { e.stopPropagation(); setFlipped(true); }}
+            className={`mt-auto inline-flex items-center gap-2 font-bold text-xs tracking-widest uppercase py-2 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 ${!isMission && !isFeature ? 'text-white' : 'text-[#7b5aa6]'}`}
+          >
+            See More
+            <svg className="w-4 h-4 transition-transform duration-300 translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Back Face */}
+        <div 
+          className={`absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl ${isFeature ? 'p-8' : 'px-10 py-10'} border border-purple-100 shadow-xl flex flex-col ${!isMission && !isFeature ? 'bg-[#7b5aa6] text-white' : 'bg-white'}`}
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+        >
+          {isMission && !isFeature && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#7b5aa6] via-purple-300 to-transparent" />}
+          {!isMission && !isFeature && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent" />}
+
+          <h4 className={`font-extrabold mb-4 ${isFeature ? 'text-base' : 'text-2xl'} ${!isMission && !isFeature ? 'text-white' : 'text-gray-900'}`}>
+            Full Detail
+          </h4>
+          <div className={`text-sm leading-relaxed overflow-y-auto pr-2 custom-scrollbar flex-grow ${!isMission && !isFeature ? 'text-purple-50' : 'text-gray-500'}`}>
+            {fullContent}
+          </div>
+
+          <button 
+            onClick={(e) => { e.stopPropagation(); setFlipped(false); }}
+            className={`mt-6 inline-flex items-center gap-2 font-bold text-xs tracking-widest uppercase py-2 transition-colors duration-300 ${!isMission && !isFeature ? 'text-white hover:text-purple-200' : 'text-[#7b5aa6] hover:text-[#5e4482]'}`}
+          >
+            <svg className="w-4 h-4 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+            Back
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -86,7 +176,7 @@ export default function About() {
         }}
       />
 
-      <div className="relative max-w-6xl mx-auto px-6 md:px-12">
+      <div className="relative max-w-6xl mx-auto px-6 md:px-12 z-20">
 
         {/* ── Section Label + Heading ── */}
         <FadeIn className="text-center">
@@ -116,72 +206,60 @@ export default function About() {
         </FadeIn>
 
         {/* ── Mission Block ── */}
-        <FadeIn delay={150} className="mt-20 grid md:grid-cols-2 gap-12 items-center">
-          {/* Left: Mission Card */}
-          <div className="cursor-pointer bg-white rounded-3xl px-8 py-10 border border-purple-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#7b5aa6] via-purple-300 to-transparent" />
+        <div className="mt-20 grid md:grid-cols-2 gap-12">
+          <FadeIn delay={150} direction="left">
+            <FlipCard 
+              isMission={true}
+              title={<>Empowering Clubs & Players <br className="hidden md:block" /> Through Digital Excellence</>}
+              shortDesc="Building the ultimate bridge between raw talent and professional club success with elite-level infrastructure."
+              fullContent={
+                <>
+                  <p className="mb-4">
+                    Our mission is to provide grassroots clubs with enterprise-grade management tools previously reserved for global giants. We ensure every organization can recruit, track, and grow their roster effectively.
+                  </p>
+                  <p className="mb-4">
+                    We believe in a future where every player has a verified career record and every club operates with transparency. By standardizing contracts and workflows, we create a fair marketplace for talent.
+                  </p>
+                  <p>
+                    Whether you are a local club or an aspiring pro, EsportM provides the digital backbone required for sustainable growth in the modern competitive gaming landscape.
+                  </p>
+                </>
+              }
+            />
+          </FadeIn>
 
-            <p className="uppercase tracking-[0.3em] text-[10px] font-semibold text-[#7b5aa6] mb-4">
-              Our Mission
-            </p>
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 leading-snug mb-5">
-              Bringing Institutional <br className="hidden md:block" />
-              Structure to Esports
-            </h3>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Esports has grown from a passion project into a multi-billion dollar global
-              industry — yet the management infrastructure has lagged far behind. EsportM
-              was created to close that gap by delivering enterprise-grade tools adapted
-              specifically for the dynamics of competitive gaming.
-            </p>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              We believe every player deserves a verified career record, every club
-              deserves transparent governance, and every tournament deserves a fair and
-              auditable competitive structure. EsportM makes all of that possible through
-              a single, integrated platform.
-            </p>
-            <p className="text-gray-600 leading-relaxed">
-              Whether you are a regional club looking to professionalize operations or a
-              national federation seeking compliance-ready infrastructure, EsportM scales
-              to match your ambitions — today and into the future of esports.
-            </p>
-          </div>
-
-          {/* Right: Our Vision */}
-          <div className="cursor-pointer bg-[#7b5aa6] rounded-3xl px-8 py-10 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent" />
-
-            <p className="uppercase tracking-[0.3em] text-[10px] font-semibold text-purple-200 mb-4">
-              Our Vision
-            </p>
-            <h3 className="text-2xl md:text-3xl font-extrabold text-white leading-snug mb-5">
-              A Unified Standard for <br />Global Esports Governance
-            </h3>
-            <p className="text-purple-200 text-sm leading-relaxed mb-6">
-              We envision a world where every esports organization — regardless of
-              size or region — operates on a shared foundation of transparency,
-              accountability, and competitive integrity. EsportM is that foundation.
-            </p>
-
-            <div className="space-y-3">
-              {[
-                "Standardized player career records across all titles",
-                "Globally recognized club certification framework",
-                "Interoperable tournament data between federations",
-                "Real-time anti-fraud and eligibility verification",
-              ].map((point) => (
-                <div key={point} className="flex items-start gap-2.5">
-                  <div className="w-4 h-4 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
-                      <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+          <FadeIn delay={300} direction="right">
+            <FlipCard 
+              isMission={false}
+              title={<>Setting Global Standards <br /> for Player & Club Success</>}
+              shortDesc="Redefining how the world scouts, manages, and celebrates the next generation of esports legends."
+              fullContent={
+                <div className="space-y-4">
+                  <p>
+                    We envision a world where every esports organization operates on a unified standard. EsportM aims to be the global standard for managing the entire journey from scouting to victory.
+                  </p>
+                  <div className="space-y-2">
+                    {[
+                      "Verified professional career records for every player",
+                      "Standardized certification for competitive clubs",
+                      "Automated and fair scouting & recruitment systems",
+                      "Real-time performance analytics for strategic growth",
+                    ].map((point) => (
+                      <div key={point} className="flex items-start gap-2.5">
+                        <div className="w-4 h-4 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                            <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                        <p className="text-white/80 text-xs leading-relaxed">{point}</p>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-white/80 text-xs leading-relaxed">{point}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </FadeIn>
+              }
+            />
+          </FadeIn>
+        </div>
 
         {/* ── Feature Cards ── */}
         <div className="mt-24">
@@ -200,21 +278,31 @@ export default function About() {
           </FadeIn>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
-              <FadeIn key={title} delay={i * 80}>
-                <div className="group cursor-pointer bg-white rounded-2xl border border-purple-100 p-7 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full relative overflow-hidden">
-                  {/* Hover top line */}
-                  <div className="absolute top-0 left-0 h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-[#7b5aa6] to-purple-300 transition-all duration-500" />
+            {FEATURES.map(({ icon, title, desc }, i) => {
+              const modernHooks = {
+                "Player & Club Administration": "Master your squad. Professional-grade registry for profiles and contracts.",
+                "Performance Intelligence": "Data-driven dominance. Turn match stats into actionable winning strategies.",
+                "Tournament Operations": "Championship ready. Seamless lifecycle management for every competition.",
+                "Multi-Region Ecosystem": "Go global. Connect with regional federations and international talent.",
+                "Regulatory Compliance": "Verified excellence. Stay compliant with unified governance standards.",
+                "Marketplace & Transfers": "Talent nexus. The ultimate hub for scouting and secure player moves.",
+              };
+              
+              // Pattern: Left, Up, Right, Left, Up, Right
+              const direction = i % 3 === 0 ? "left" : i % 3 === 2 ? "right" : "up";
 
-                  <div className="w-12 h-12 rounded-xl bg-[#ede7f5] flex items-center justify-center mb-5 group-hover:bg-[#7b5aa6] transition-colors duration-300 cursor-pointer">
-                    <Icon size={22} className="text-[#7b5aa6] group-hover:text-white transition-colors duration-300" strokeWidth={1.8} />
-                  </div>
-
-                  <h4 className="text-base font-bold text-gray-900 mb-3 group-hover:text-[#7b5aa6] transition-colors duration-300">{title}</h4>
-                  <p className="text-sm text-gray-500 leading-relaxed group-hover:text-gray-600 transition-colors duration-300">{desc}</p>
-                </div>
-              </FadeIn>
-            ))}
+              return (
+                <FadeIn key={title} delay={i * 100} direction={direction}>
+                  <FlipCard 
+                    isFeature={true}
+                    icon={icon}
+                    title={title}
+                    shortDesc={modernHooks[title] || desc.split('. ')[0] + '.'}
+                    fullContent={desc}
+                  />
+                </FadeIn>
+              );
+            })}
           </div>
         </div>
 

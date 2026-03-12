@@ -6,25 +6,35 @@ function useInView(threshold = 0.15) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      ([entry]) => { setVisible(entry.isIntersecting); },
       { threshold }
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
-  }, []);
+  }, [threshold]);
   return [ref, visible];
 }
 
-function FadeIn({ children, delay = 0, className = "" }) {
+function FadeIn({ children, delay = 0, className = "", direction = "up" }) {
   const [ref, visible] = useInView();
+  
+  const getTransform = () => {
+    if (!visible) {
+      if (direction === "left") return "translateX(-40px)";
+      if (direction === "right") return "translateX(40px)";
+      return "translateY(28px)";
+    }
+    return "translate(0, 0)";
+  };
+
   return (
     <div
       ref={ref}
       className={className}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(28px)",
-        transition: `opacity 0.75s ${delay}ms ease, transform 0.75s ${delay}ms ease`,
+        transform: getTransform(),
+        transition: `opacity 0.8s ${delay}ms ease-out, transform 0.8s ${delay}ms cubic-bezier(0.16, 1, 0.3, 1)`,
       }}
     >
       {children}
@@ -82,7 +92,7 @@ const Marketplace = () => {
         }}
       />
 
-      <div className="relative max-w-6xl mx-auto px-6 md:px-12">
+      <div className="relative max-w-6xl mx-auto px-6 md:px-12 z-20">
 
         {/* ── Header ── */}
         <FadeIn className="text-center mb-16">
@@ -112,49 +122,52 @@ const Marketplace = () => {
 
         {/* ── Cards ── */}
         <div className="grid md:grid-cols-3 gap-7">
-          {CARDS.map(({ icon: Icon, tag, number, title, desc, highlights }, i) => (
-            <FadeIn key={title} delay={i * 110}>
-              <div className="group cursor-pointer relative bg-white rounded-2xl border border-purple-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden h-full flex flex-col">
-
-                {/* Animated top border */}
-                <div className="absolute top-0 left-0 h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-[#7b5aa6] to-purple-300 transition-all duration-500" />
-
-                {/* Card body */}
-                <div className="p-8 flex flex-col flex-1">
-
-                  {/* Icon + Tag row */}
-                  <div className="flex items-start justify-between mb-7">
-                    <div className="cursor-pointer w-14 h-14 rounded-xl bg-[#ede7f5] flex items-center justify-center group-hover:bg-[#7b5aa6] transition-colors duration-300 flex-shrink-0">
-                      <Icon
-                        size={24}
-                        strokeWidth={1.7}
-                        className="text-[#7b5aa6] group-hover:text-white transition-colors duration-300"
-                      />
-                    </div>
-                    <span className="cursor-pointer text-[10px] font-semibold uppercase tracking-widest text-[#7b5aa6] bg-[#ede7f5] px-3 py-1 rounded-full border border-purple-200 group-hover:bg-[#7b5aa6] group-hover:text-white group-hover:border-[#7b5aa6] transition-all duration-300">
-                      {tag}
-                    </span>
-                  </div>
-
-                  {/* Text */}
-                  <h3 className="text-lg font-bold text-gray-900 mb-3 leading-snug group-hover:text-[#7b5aa6] transition-colors duration-300">{title}</h3>
-                  <p className="text-sm text-gray-500 leading-relaxed flex-1 group-hover:text-gray-600 transition-colors duration-300">{desc}</p>
-
-                  {/* Highlights */}
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {highlights.map((h) => (
-                      <span
-                        key={h}
-                        className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide text-[#7b5aa6] bg-[#ede7f5] border border-purple-200 px-2.5 py-1 rounded-md hover:bg-[#7b5aa6] hover:text-white hover:border-[#7b5aa6] transition-all duration-300"
-                      >
-                        {h}
+          {CARDS.map(({ icon: Icon, tag, number, title, desc, highlights }, i) => {
+            const direction = i % 3 === 0 ? "left" : i % 3 === 2 ? "right" : "up";
+            return (
+              <FadeIn key={title} delay={i * 120} direction={direction}>
+                <div className="group cursor-pointer relative bg-white rounded-2xl border border-purple-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden h-full flex flex-col">
+  
+                  {/* Animated top border */}
+                  <div className="absolute top-0 left-0 h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-[#7b5aa6] to-purple-300 transition-all duration-500" />
+  
+                  {/* Card body */}
+                  <div className="p-8 flex flex-col flex-1">
+  
+                    {/* Icon + Tag row */}
+                    <div className="flex items-start justify-between mb-7">
+                      <div className="cursor-pointer w-14 h-14 rounded-xl bg-[#ede7f5] flex items-center justify-center group-hover:bg-[#7b5aa6] transition-colors duration-300 flex-shrink-0">
+                        <Icon
+                          size={24}
+                          strokeWidth={1.7}
+                          className="text-[#7b5aa6] group-hover:text-white transition-colors duration-300"
+                        />
+                      </div>
+                      <span className="cursor-pointer text-[10px] font-semibold uppercase tracking-widest text-[#7b5aa6] bg-[#ede7f5] px-3 py-1 rounded-full border border-purple-200 group-hover:bg-[#7b5aa6] group-hover:text-white group-hover:border-[#7b5aa6] transition-all duration-300">
+                        {tag}
                       </span>
-                    ))}
+                    </div>
+  
+                    {/* Text */}
+                    <h3 className="text-lg font-bold text-gray-900 mb-3 leading-snug group-hover:text-[#7b5aa6] transition-colors duration-300">{title}</h3>
+                    <p className="text-sm text-gray-500 leading-relaxed flex-1 group-hover:text-gray-600 transition-colors duration-300">{desc}</p>
+  
+                    {/* Highlights */}
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      {highlights.map((h) => (
+                        <span
+                          key={h}
+                          className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide text-[#7b5aa6] bg-[#ede7f5] border border-purple-200 px-2.5 py-1 rounded-md hover:bg-[#7b5aa6] hover:text-white hover:border-[#7b5aa6] transition-all duration-300"
+                        >
+                          {h}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </FadeIn>
-          ))}
+              </FadeIn>
+            );
+          })}
         </div>
 
 
