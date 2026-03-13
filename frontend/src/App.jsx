@@ -1,4 +1,4 @@
-import Header from "../src/Component/Header";
+import Header from "./Component/Header";
 import Hero from "./Component/Hero";
 import About from "./Component/About";
 import AI from "./Component/AI";

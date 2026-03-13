@@ -15,22 +15,6 @@ section {
   scroll-margin-top: 90px;
 }
 
-/* Custom Utilities */
-@layer utilities {
-  .perspective-1000 {
-    perspective: 1000px;
-  }
-  .preserve-3d {
-    transform-style: preserve-3d;
-  }
-  .backface-hidden {
-    backface-visibility: hidden;
-  }
-  .rotate-y-180 {
-    transform: rotateY(180deg);
-  }
-}
-
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
@@ -46,4 +30,14 @@ section {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(123, 90, 166, 0.4);
+}
+
+@keyframes floating-subtle {
+  0% { transform: translateY(-4px) rotate(0deg); }
+  50% { transform: translateY(4px) rotate(2deg); }
+  100% { transform: translateY(-4px) rotate(0deg); }
+}
+
+.animate-floating {
+  animation: floating-subtle 4s ease-in-out infinite;
 }

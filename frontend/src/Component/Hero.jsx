@@ -233,7 +233,7 @@ const Hero = () => {
           <img
             src={player}
             alt="player"
-            className="w-[220px] sm:w-[300px] md:w-[380px] lg:w-[450px] xl:w-[520px] object-contain z-10"
+            className="w-[220px] sm:w-[300px] md:w-[380px] lg:w-[450px] xl:w-[520px] object-contain z-10 md:-translate-x-48"
           />
 
           {/* Player Number */}

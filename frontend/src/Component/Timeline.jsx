@@ -117,7 +117,7 @@ const Timeline = () => {
         {/* ── Timeline Steps ── */}
         <div className="grid md:grid-cols-3 gap-7">
           {STEPS.map(({ icon: Icon, number, tag, title, desc, highlights }, i) => {
-            const direction = i % 3 === 0 ? "left" : i % 3 === 2 ? "right" : "up";
+            const direction = i % 2 === 0 ? "left" : "right";
             return (
               <FadeIn key={title} delay={i * 120} direction={direction}>
                 <div className="group cursor-pointer relative bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl overflow-hidden hover:bg-white/15 hover:-translate-y-2 transition-all duration-300 h-full flex flex-col">
@@ -125,26 +125,28 @@ const Timeline = () => {
                   {/* Animated top border */}
                   <div className="absolute top-0 left-0 h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-white/70 to-white/20 transition-all duration-500" />
   
-                  <div className="p-8 flex flex-col flex-1">
+                  <div className="p-8 flex flex-col h-full flex-1">
   
-                    {/* Icon */}
-                    <div className="cursor-pointer w-14 h-14 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center group-hover:bg-white/25 transition-colors duration-300 mb-6">
-                      <Icon size={24} strokeWidth={1.7} className="text-white" />
-                    </div>
-  
-                    {/* Header with Title and Tag */}
-                    <div className="flex flex-col gap-3 mb-4">
-                      <h3 className="text-lg font-bold text-white leading-snug group-hover:text-purple-200 transition-colors duration-300">{title}</h3>
-                      <span className="cursor-pointer text-[10px] font-semibold uppercase tracking-widest text-purple-200 bg-white/10 border border-white/15 px-3 py-1 rounded-full group-hover:bg-white/20 group-hover:text-white transition-all duration-300 w-fit">
+                    {/* Icon + Tag row */}
+                    <div className="flex items-start justify-between mb-7">
+                      <div className="cursor-pointer w-14 h-14 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center group-hover:bg-white/25 transition-colors duration-300 flex-shrink-0">
+                        <Icon size={24} strokeWidth={1.7} className="text-white" />
+                      </div>
+                      <span className="cursor-pointer text-[10px] font-semibold uppercase tracking-widest text-purple-200 bg-white/10 border border-white/15 px-3 py-1 rounded-full group-hover:bg-white/20 group-hover:text-white transition-all duration-300">
                         {tag}
                       </span>
                     </div>
   
-                    {/* Description */}
-                    <p className="text-sm text-purple-100/80 leading-relaxed mb-6 flex-1 group-hover:text-purple-100 transition-colors duration-300">{desc}</p>
+                    {/* Text content */}
+                    <h3 className="text-lg font-bold text-white mb-3 leading-snug group-hover:text-purple-200 transition-colors duration-300">
+                      {title}
+                    </h3>
+                    <p className="text-sm text-purple-100/80 leading-relaxed mb-6 flex-1 group-hover:text-purple-100 transition-colors duration-300">
+                      {desc}
+                    </p>
   
                     {/* Highlight chips */}
-                    <div className="flex flex-wrap gap-2">
+                    <div className="mt-6 flex flex-wrap gap-2">
                       {highlights.map((h) => (
                         <span
                           key={h}

@@ -119,10 +119,11 @@ const AI = () => {
           </p>
         </FadeIn>
 
+
         {/* ── Cards ── */}
         <div className="grid md:grid-cols-3 gap-7">
           {CARDS.map(({ icon: Icon, tag, number, title, desc, highlights }, i) => {
-            const direction = i % 3 === 0 ? "left" : i % 3 === 2 ? "right" : "up";
+            const direction = i % 2 === 0 ? "left" : "right";
             return (
               <FadeIn key={title} delay={i * 120} direction={direction}>
                 <div className="group cursor-pointer relative bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl overflow-hidden h-full flex flex-col hover:bg-white/15 hover:-translate-y-2 transition-all duration-300">
@@ -163,7 +164,6 @@ const AI = () => {
             );
           })}
         </div>
-
       </div>
     </section>
   );

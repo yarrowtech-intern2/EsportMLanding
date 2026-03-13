@@ -44,58 +44,37 @@ function FadeIn({ children, delay = 0, className = "", direction = "up" }) {
 
 const CARDS = [
   {
+    icon: ShieldCheck,
+    tag: "Security",
+    title: "Verified Profiles",
+    desc: "Every player profile undergoes a rigorous verification process. We confirm identity, age, and professional status to ensure a secure scouting environment.",
+    highlights: ["Identity Verification", "Official Badges", "Secure Data"],
+  },
+  {
     icon: Users,
-    tag: "Discovery",
-    number: "01",
-    title: "Player Listings",
-    desc: "Clubs can browse structured player profiles including performance metrics, rankings, statistics, and verified career history.",
-    highlights: ["Verified Profiles", "Performance Metrics", "Career History"],
+    tag: "Analytics",
+    title: "Performance Metrics",
+    desc: "Real-time synchronization of player stats across all major titles. View kill-death ratios, win rates, and objective-based performance analytics.",
+    highlights: ["Live API Sync", "Skill Heatmaps", "Rank Comparison"],
   },
   {
     icon: ArrowRightLeft,
-    tag: "Negotiation",
-    number: "02",
-    title: "Transfer & Negotiation",
-    desc: "Secure digital negotiation workflow for transfer fees, contract duration, and structured player acquisition.",
-    highlights: ["Digital Workflow", "Transfer Fees", "Structured Deals"],
+    tag: "Legacy",
+    title: "Career History",
+    desc: "Complete chronological logs of previous team affiliations, tournament placements, and contract durations to provide full transparency into player experience.",
+    highlights: ["Team Timeline", "Trophy Room", "Contract Legacy"],
   },
-  {
-    icon: ShieldCheck,
-    tag: "Compliance",
-    number: "03",
-    title: "Secure Contract System",
-    desc: "Digital contract management with compliance tracking, secure documentation, and transparent transaction history.",
-    highlights: ["Compliance Tracking", "Secure Docs", "Transaction Log"],
-  },
-];
-
-const STATS = [
-  { value: "1,200+", label: "Listed Players" },
-  { value: "340+",   label: "Transfers Completed" },
-  { value: "98%",    label: "Contract Accuracy" },
-  { value: "60+",    label: "Partner Clubs" },
 ];
 
 const Marketplace = () => {
   return (
-    <section id="marketplace" className="relative bg-[#ede7f5] py-28 overflow-hidden">
+    <section id="marketplace" className="relative bg-white py-20 overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-purple-50 rounded-full blur-3xl opacity-50 pointer-events-none" />
+      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-50 rounded-full blur-3xl opacity-50 pointer-events-none" />
 
-      {/* ── Background Decorations ── */}
-      <div className="absolute -top-28 -right-28 w-[440px] h-[440px] bg-purple-300/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-28 -left-28 w-[360px] h-[360px] bg-purple-300/10 rounded-full blur-3xl pointer-events-none" />
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(123,90,166,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(123,90,166,0.06) 1px, transparent 1px)",
-          backgroundSize: "52px 52px",
-        }}
-      />
-
-      <div className="relative max-w-6xl mx-auto px-6 md:px-12 z-20">
-
-        {/* ── Header ── */}
-        <FadeIn className="text-center mb-16">
+      <div className="relative max-w-5xl mx-auto px-6 z-20">
+        <FadeIn className="text-center mb-14">
           <p className="inline-flex items-center gap-3 uppercase tracking-[0.38em] text-[10px] font-semibold text-[#7b5aa6] mb-5">
             <span className="block w-7 h-px bg-[#7b5aa6]" />
             Player Exchange
@@ -103,8 +82,7 @@ const Marketplace = () => {
           </p>
 
           <h2 className="text-4xl md:text-[56px] font-extrabold text-gray-900 leading-[1.05] tracking-tight mb-5">
-            The EsportM{" "}
-            <span className="text-[#7b5aa6]">Marketplace</span>
+            The EsportM <span className="text-[#7b5aa6]">Marketplace</span>
           </h2>
 
           <div className="flex justify-center items-center gap-3 mb-7">
@@ -120,44 +98,37 @@ const Marketplace = () => {
           </p>
         </FadeIn>
 
-        {/* ── Cards ── */}
-        <div className="grid md:grid-cols-3 gap-7">
+        {/* ── Cards Grid ── */}
+        <div className="grid md:grid-cols-3 gap-8">
           {CARDS.map(({ icon: Icon, tag, number, title, desc, highlights }, i) => {
-            const direction = i % 3 === 0 ? "left" : i % 3 === 2 ? "right" : "up";
+            const direction = i % 2 === 0 ? "left" : "right";
             return (
               <FadeIn key={title} delay={i * 120} direction={direction}>
-                <div className="group cursor-pointer relative bg-white rounded-2xl border border-purple-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden h-full flex flex-col">
-  
-                  {/* Animated top border */}
-                  <div className="absolute top-0 left-0 h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-[#7b5aa6] to-purple-300 transition-all duration-500" />
-  
-                  {/* Card body */}
-                  <div className="p-8 flex flex-col flex-1">
+                <div className="group cursor-pointer relative bg-white rounded-3xl border border-purple-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 overflow-hidden flex flex-col h-full bg-gradient-to-b from-white to-purple-50/20">
+                  <div className="absolute top-0 left-0 h-1.5 w-0 group-hover:w-full bg-[#7b5aa6] transition-all duration-500" />
+                  
+                  <div className="p-8 flex flex-col h-full flex-1">
   
                     {/* Icon + Tag row */}
                     <div className="flex items-start justify-between mb-7">
-                      <div className="cursor-pointer w-14 h-14 rounded-xl bg-[#ede7f5] flex items-center justify-center group-hover:bg-[#7b5aa6] transition-colors duration-300 flex-shrink-0">
-                        <Icon
-                          size={24}
-                          strokeWidth={1.7}
-                          className="text-[#7b5aa6] group-hover:text-white transition-colors duration-300"
-                        />
+                      <div className="cursor-pointer w-14 h-14 rounded-xl bg-[#ede7f5] flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-colors duration-300 flex-shrink-0 shadow-sm">
+                        <Icon size={24} strokeWidth={1.7} className="text-[#7b5aa6]" />
                       </div>
-                      <span className="cursor-pointer text-[10px] font-semibold uppercase tracking-widest text-[#7b5aa6] bg-[#ede7f5] px-3 py-1 rounded-full border border-purple-200 group-hover:bg-[#7b5aa6] group-hover:text-white group-hover:border-[#7b5aa6] transition-all duration-300">
+                      <span className="cursor-pointer text-[10px] font-semibold uppercase tracking-widest text-[#7b5aa6] bg-purple-100/50 border border-purple-200 px-3 py-1 rounded-full group-hover:bg-[#7b5aa6] group-hover:text-white transition-all duration-300">
                         {tag}
                       </span>
                     </div>
   
                     {/* Text */}
                     <h3 className="text-lg font-bold text-gray-900 mb-3 leading-snug group-hover:text-[#7b5aa6] transition-colors duration-300">{title}</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed flex-1 group-hover:text-gray-600 transition-colors duration-300">{desc}</p>
+                    <p className="text-sm text-gray-500 leading-relaxed flex-1 group-hover:text-gray-700 transition-colors duration-300">{desc}</p>
   
                     {/* Highlights */}
                     <div className="mt-6 flex flex-wrap gap-2">
                       {highlights.map((h) => (
                         <span
                           key={h}
-                          className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide text-[#7b5aa6] bg-[#ede7f5] border border-purple-200 px-2.5 py-1 rounded-md hover:bg-[#7b5aa6] hover:text-white hover:border-[#7b5aa6] transition-all duration-300"
+                          className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide text-gray-600 bg-white border border-gray-100 px-2.5 py-1 rounded-md hover:border-[#7b5aa6] hover:text-[#7b5aa6] transition-colors duration-300"
                         >
                           {h}
                         </span>
@@ -169,10 +140,6 @@ const Marketplace = () => {
             );
           })}
         </div>
-
-
-
-
       </div>
     </section>
   );

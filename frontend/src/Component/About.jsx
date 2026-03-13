@@ -42,22 +42,24 @@ function FadeIn({ children, delay = 0, className = "", direction = "up" }) {
   );
 }
 
-function FlipCard({ title, icon: Icon, shortDesc, fullContent, isMission = true, isFeature = false }) {
-  const [flipped, setFlipped] = useState(false);
+function FlipCard({ id, title, icon: Icon, shortDesc, fullContent, isMission = true, isFeature = false, isFlipped, onFlip }) {
   const IconComponent = Icon ? Icon : null;
 
   return (
-    <div className={`perspective-1000 w-full transition-all duration-500 ease-in-out ${
-      isFeature 
-        ? (flipped ? 'h-[320px]' : 'h-[230px]') 
-        : (flipped ? 'min-h-[450px]' : 'min-h-[320px]')
-    }`}>
+    <div 
+      className={`w-full transition-all duration-500 ease-in-out ${
+        isFeature 
+          ? (isFlipped ? 'h-[320px]' : 'h-[230px]') 
+          : (isFlipped ? 'min-h-[450px]' : 'min-h-[320px]')
+      }`}
+      style={{ perspective: '1000px' }}
+    >
       <div 
-        className={`relative w-full h-full transition-all duration-700 preserve-3d ${flipped ? 'rotate-y-180' : ''}`}
+        className={`relative w-full h-full transition-all duration-700 ${isFlipped ? 'rotate-y-180' : ''}`}
         style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Front Face */}
-        <div className={`group w-full h-full backface-hidden rounded-3xl ${isFeature ? 'p-8' : 'px-10 py-10'} border border-purple-100 shadow-sm relative flex flex-col ${!isMission && !isFeature ? 'bg-[#7b5aa6] text-white' : 'bg-white'} hover:shadow-lg transition-shadow duration-300`} style={{ backfaceVisibility: 'hidden' }}>
+        <div className={`group w-full h-full rounded-3xl ${isFeature ? 'p-8' : 'px-10 py-10'} border border-purple-100 shadow-sm relative flex flex-col ${!isMission && !isFeature ? 'bg-[#7b5aa6] text-white' : 'bg-white'} hover:shadow-lg transition-shadow duration-300`} style={{ backfaceVisibility: 'hidden' }}>
           {isMission && !isFeature && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#7b5aa6] via-purple-300 to-transparent" />}
           {!isMission && !isFeature && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent" />}
           {isFeature && (
@@ -84,7 +86,7 @@ function FlipCard({ title, icon: Icon, shortDesc, fullContent, isMission = true,
           </p>
 
           <button 
-            onClick={(e) => { e.stopPropagation(); setFlipped(true); }}
+            onClick={(e) => { e.stopPropagation(); onFlip(id); }}
             className={`mt-auto inline-flex items-center gap-2 font-bold text-xs tracking-widest uppercase py-2 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 ${!isMission && !isFeature ? 'text-white' : 'text-[#7b5aa6]'}`}
           >
             See More
@@ -96,7 +98,7 @@ function FlipCard({ title, icon: Icon, shortDesc, fullContent, isMission = true,
 
         {/* Back Face */}
         <div 
-          className={`absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl ${isFeature ? 'p-8' : 'px-10 py-10'} border border-purple-100 shadow-xl flex flex-col ${!isMission && !isFeature ? 'bg-[#7b5aa6] text-white' : 'bg-white'}`}
+          className={`absolute inset-0 w-full h-full rounded-3xl ${isFeature ? 'p-8' : 'px-10 py-10'} border border-purple-100 shadow-xl flex flex-col ${!isMission && !isFeature ? 'bg-[#7b5aa6] text-white' : 'bg-white'}`}
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
           {isMission && !isFeature && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#7b5aa6] via-purple-300 to-transparent" />}
@@ -110,7 +112,7 @@ function FlipCard({ title, icon: Icon, shortDesc, fullContent, isMission = true,
           </div>
 
           <button 
-            onClick={(e) => { e.stopPropagation(); setFlipped(false); }}
+            onClick={(e) => { e.stopPropagation(); onFlip(null); }}
             className={`mt-6 inline-flex items-center gap-2 font-bold text-xs tracking-widest uppercase py-2 transition-colors duration-300 ${!isMission && !isFeature ? 'text-white hover:text-purple-200' : 'text-[#7b5aa6] hover:text-[#5e4482]'}`}
           >
             <svg className="w-4 h-4 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -159,6 +161,12 @@ const FEATURES = [
 ];
 
 export default function About() {
+  const [activeFlipId, setActiveFlipId] = useState(null);
+
+  const handleFlip = (id) => {
+    setActiveFlipId(id === activeFlipId ? null : id);
+  };
+
   return (
     <section id="about" className="relative bg-[#ede7f5] py-28 overflow-hidden">
 
@@ -209,9 +217,12 @@ export default function About() {
         <div className="mt-20 grid md:grid-cols-2 gap-12">
           <FadeIn delay={150} direction="left">
             <FlipCard 
+              id="mission"
               isMission={true}
               title={<>Empowering Clubs & Players <br className="hidden md:block" /> Through Digital Excellence</>}
               shortDesc="Building the ultimate bridge between raw talent and professional club success with elite-level infrastructure."
+              isFlipped={activeFlipId === "mission"}
+              onFlip={handleFlip}
               fullContent={
                 <>
                   <p className="mb-4">
@@ -230,9 +241,12 @@ export default function About() {
 
           <FadeIn delay={300} direction="right">
             <FlipCard 
+              id="vision"
               isMission={false}
               title={<>Setting Global Standards <br /> for Player & Club Success</>}
               shortDesc="Redefining how the world scouts, manages, and celebrates the next generation of esports legends."
+              isFlipped={activeFlipId === "vision"}
+              onFlip={handleFlip}
               fullContent={
                 <div className="space-y-4">
                   <p>
@@ -288,16 +302,19 @@ export default function About() {
                 "Marketplace & Transfers": "Talent nexus. The ultimate hub for scouting and secure player moves.",
               };
               
-              // Pattern: Left, Up, Right, Left, Up, Right
-              const direction = i % 3 === 0 ? "left" : i % 3 === 2 ? "right" : "up";
+              // Pattern: Alternating Left, Right
+              const direction = i % 2 === 0 ? "left" : "right";
 
               return (
                 <FadeIn key={title} delay={i * 100} direction={direction}>
                   <FlipCard 
+                    id={`feature-${i}`}
                     isFeature={true}
                     icon={icon}
                     title={title}
                     shortDesc={modernHooks[title] || desc.split('. ')[0] + '.'}
+                    isFlipped={activeFlipId === `feature-${i}`}
+                    onFlip={handleFlip}
                     fullContent={desc}
                   />
                 </FadeIn>

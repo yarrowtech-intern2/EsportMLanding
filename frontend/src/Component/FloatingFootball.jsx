@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import football from "../assets/football.png";
 
 const FloatingFootball = () => {
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   const [style, setStyle] = useState({ 
     top: "50%", 
     left: "50%", 
@@ -12,11 +13,13 @@ const FloatingFootball = () => {
   });
 
   useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    
     const handleScroll = () => {
       const scrollY = window.scrollY;
+      const isMobile = windowWidth < 768;
       
-      // Selectors for sections
-      const hero = document.getElementById("home");
       const about = document.getElementById("about");
       const ai = document.getElementById("ai");
       const marketplace = document.getElementById("marketplace");
@@ -24,77 +27,82 @@ const FloatingFootball = () => {
       const contact = document.getElementById("contact");
       const footer = document.getElementById("footer");
 
-      const getRect = (el) => el ? el.getBoundingClientRect() : { top: 10000, bottom: 10000 };
+      const isActive = (el) => {
+        if (!el) return false;
+        const rect = el.getBoundingClientRect();
+        // More lenient active zone for mobile
+        const offset = isMobile ? window.innerHeight * 0.4 : window.innerHeight / 2;
+        return rect.top < offset && rect.bottom > offset;
+      };
 
-      // SMART POSITIONING & MOTION:
-      if (getRect(hero).bottom > window.innerHeight / 2) {
-        // Hero: CENTERED
+      if (scrollY < 600) {
+        // Hero: Centered
         setStyle({
-          top: "50%",
+          top: isMobile ? "40%" : "50%",
           left: "50%",
-          scale: 1.3,
+          scale: isMobile ? 0.6 : 1.2,
           rotate: scrollY * 0.05,
           opacity: 0.5,
           filter: "blur(0px) brightness(1.0)"
         });
-      } else if (about && getRect(about).top < window.innerHeight / 2 && getRect(about).bottom > window.innerHeight / 2) {
+      } else if (isActive(about)) {
         // About: Right Side
         setStyle({
-          top: "40%",
-          left: "92%",
-          scale: 1.0,
+          top: "45%",
+          left: isMobile ? "85%" : "92%",
+          scale: isMobile ? 0.5 : 1.0,
           rotate: scrollY * 0.1,
-          opacity: 0.55,
-          filter: "blur(0px) brightness(1.0)"
+          opacity: 0.4,
+          filter: "blur(0px) brightness(0.95)"
         });
-      } else if (ai && getRect(ai).top < window.innerHeight / 2 && getRect(ai).bottom > window.innerHeight / 2) {
+      } else if (isActive(ai)) {
         // AI: Left Side
         setStyle({
-          top: "55%",
-          left: "8%",
-          scale: 1.1,
+          top: isMobile ? "60%" : "55%",
+          left: isMobile ? "15%" : "8%",
+          scale: isMobile ? 0.5 : 1.1,
           rotate: scrollY * -0.08,
-          opacity: 0.5, 
+          opacity: 0.35, 
           filter: "blur(0px) brightness(1.0)"
         });
-      } else if (marketplace && getRect(marketplace).top < window.innerHeight / 2 && getRect(marketplace).bottom > window.innerHeight / 2) {
+      } else if (isActive(marketplace)) {
         // Marketplace: Right Side
         setStyle({
-          top: "50%",
-          left: "92%",
-          scale: 1.1,
+          top: "60%",
+          left: isMobile ? "85%" : "90%",
+          scale: isMobile ? "0.5" : 0.9,
           rotate: scrollY * 0.12,
-          opacity: 0.55,
-          filter: "blur(0px) brightness(1.0)"
+          opacity: 0.35,
+          filter: "blur(0px) brightness(0.9)"
         });
-      } else if (timeline && getRect(timeline).top < window.innerHeight / 2 && getRect(timeline).bottom > window.innerHeight / 2) {
+      } else if (isActive(timeline)) {
         // Timeline: Left Side
         setStyle({
-          top: "60%",
-          left: "8%",
-          scale: 1.1,
+          top: isMobile ? "70%" : "65%",
+          left: isMobile ? "15%" : "8%",
+          scale: isMobile ? 0.6 : 1.1,
           rotate: scrollY * 0.04,
-          opacity: 0.5,
+          opacity: 0.4,
           filter: "blur(0px) brightness(1.0)"
         });
-      } else if (contact && getRect(contact).top < window.innerHeight / 2 && getRect(contact).bottom > window.innerHeight / 2) {
-        // Contact: glides to Right (90%)
+      } else if (isActive(contact)) {
+        // Contact: Right Side
         setStyle({
           top: "50%",
-          left: "90%",
-          scale: 1.2,
+          left: isMobile ? "85%" : "90%",
+          scale: isMobile ? 0.7 : 1.2,
           rotate: scrollY * 0.15,
-          opacity: 0.55,
+          opacity: 0.45,
           filter: "blur(0px) brightness(1.0)"
         });
-      } else if (footer && getRect(footer).top < window.innerHeight) {
-        // Footer: glides back to Left (25%) - Subtler for text clarity
+      } else if (footer && footer.getBoundingClientRect().top < window.innerHeight) {
+        // Footer: bottom-left
         setStyle({
-          top: "65%",
-          left: "25%",
-          scale: 1.0,
+          top: isMobile ? "85%" : "80%",
+          left: "20%",
+          scale: isMobile ? 0.5 : 0.9,
           rotate: scrollY * 0.2,
-          opacity: 0.4,
+          opacity: 0.3,
           filter: "blur(0px) brightness(1.0)"
         });
       }
@@ -103,8 +111,11 @@ const FloatingFootball = () => {
     window.addEventListener("scroll", handleScroll);
     handleScroll(); 
     
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [windowWidth]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[15] overflow-hidden">
@@ -115,25 +126,24 @@ const FloatingFootball = () => {
           left: style.left,
           transform: `translate(-50%, -50%) scale(${style.scale}) rotate(${style.rotate}deg)`,
           opacity: style.opacity,
-          width: "450px",
-          height: "450px",
-          overflow: "hidden"
+          width: windowWidth < 768 ? "300px" : "450px", 
+          height: windowWidth < 768 ? "300px" : "450px",
         }}
       >
-        <img
-          src={football}
-          alt=""
-          className="w-full h-full object-contain"
-          style={{
-            filter: style.filter,
-            // Full round view crop
-            clipPath: "circle(50% at 50% 50%)"
-          }}
-        />
+        <div className="w-full h-full animate-floating">
+          <img
+            src={football}
+            alt=""
+            className="w-full h-full object-contain"
+            style={{
+              filter: style.filter,
+              clipPath: "circle(50% at 50% 50%)"
+            }}
+          />
+        </div>
       </div>
     </div>
   );
 };
 
 export default FloatingFootball;
-
